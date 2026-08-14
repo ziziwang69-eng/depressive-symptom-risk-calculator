@@ -1,0 +1,20 @@
+{
+  "status": "success",
+  "bundle_version": "1.0.0",
+  "model_name": "M2 L2-penalized logistic regression",
+  "feature_count": 17,
+  "imputation_models": 20,
+  "aggregation": "arithmetic mean of 20 predicted probabilities",
+  "outcome": "Incident depressive symptoms within 2 years",
+  "development_cohort": "CHARLS training set only",
+  "external_validation_firewall": "HRS; not used for fitting, scaling, tuning, threshold selection, or calibration",
+  "bundle_file": "lr_m2_20_models.json",
+  "bundle_sha256": "9206BD47EC3690820BFFC3D8AD0D2294C18E86CF4248153F6DEBE6530F6028A4",
+  "verification": {
+    "maximum_absolute_difference_between_factory_and_frozen_parameter_predictions": 8.326672684688674e-17,
+    "tolerance": 1e-12,
+    "passed": true
+  },
+  "illustrative_probability": 0.23132269850676268,
+  "contains_participant_level_data": false
+}
