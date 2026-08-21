@@ -29,7 +29,8 @@ class StreamlitAppTests(unittest.TestCase):
         self.assertEqual(len(app.button), 1)
 
         initial = rendered_markdown(app)
-        self.assertIn('<div class="result-value">—</div>', initial)
+        self.assertNotIn('<div class="result-card"', initial)
+        self.assertNotIn('<div class="result-value">', initial)
         self.assertIsNone(re.search(r'transform: rotate\([0-9.]+deg\)', initial))
 
         app.button[0].click().run(timeout=20)
@@ -42,7 +43,8 @@ class StreamlitAppTests(unittest.TestCase):
         mobility = next(widget for widget in app.selectbox if widget.key == "mobility")
         mobility.set_value(2).run(timeout=20)
         changed_without_calculation = rendered_markdown(app)
-        self.assertIn('<div class="result-value">—</div>', changed_without_calculation)
+        self.assertNotIn('<div class="result-card"', changed_without_calculation)
+        self.assertNotIn('<div class="result-value">', changed_without_calculation)
         self.assertIsNone(re.search(r'transform: rotate\([0-9.]+deg\)', changed_without_calculation))
 
         app.button[0].click().run(timeout=20)

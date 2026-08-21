@@ -55,38 +55,29 @@ def option(
     )
 
 
-def result_html(probability: float | None) -> str:
-    if probability is None:
-        needle = ""
-        value = "—"
-        helper = '<div class="result-helper">Enter the predictor values and select <b>Calculate probability</b>.</div>'
-        aria_value = "No probability calculated"
-    else:
-        bounded_probability = min(1.0, max(0.0, float(probability)))
-        rotation = bounded_probability * 180.0
-        needle = (
-            f'<div class="gauge-needle" style="transform: rotate({rotation:.6f}deg);"></div>'
-            '<div class="gauge-hub"></div>'
-        )
-        value = f"{bounded_probability * 100.0:.1f}%"
-        helper = '<div class="result-label">Incident depressive symptoms</div>'
-        aria_value = f"Estimated two-year probability {bounded_probability * 100.0:.1f} percent"
+def result_html(probability: float) -> str:
+    bounded_probability = min(1.0, max(0.0, float(probability)))
+    rotation = bounded_probability * 180.0
+    value = f"{bounded_probability * 100.0:.1f}%"
+    aria_value = f"Estimated two-year probability {bounded_probability * 100.0:.1f} percent"
 
-    return f"""
-    <div class="result-card" role="region" aria-label="{aria_value}">
-      <div class="gauge-wrap" role="img" aria-label="Probability gauge from zero to one">
-        <div class="gauge-dial">
-          <div class="gauge-arc"><div class="gauge-cutout"></div></div>
-          {needle}
-        </div>
-        <span class="gauge-zero">0</span>
-        <span class="gauge-one">1</span>
-      </div>
-      <div class="result-eyebrow">Estimated 2-year probability</div>
-      <div class="result-value">{value}</div>
-      {helper}
-    </div>
-    """
+    # Keep the markup flush-left and continuous so Markdown never interprets
+    # an indented closing tag as a code block in the deployed app.
+    return (
+        f'<div class="result-card" role="region" aria-label="{aria_value}">'
+        '<div class="gauge-wrap" role="img" aria-label="Probability gauge from zero to one">'
+        '<div class="gauge-dial">'
+        '<div class="gauge-arc"><div class="gauge-cutout"></div></div>'
+        f'<div class="gauge-needle" style="transform: rotate({rotation:.6f}deg);"></div>'
+        '<div class="gauge-hub"></div>'
+        '</div>'
+        '<span class="gauge-zero">0</span><span class="gauge-one">1</span>'
+        '</div>'
+        '<div class="result-eyebrow">Estimated 2-year probability</div>'
+        f'<div class="result-value">{value}</div>'
+        '<div class="result-label">Incident depressive symptoms</div>'
+        '</div>'
+    )
 
 
 bundle = get_bundle()
@@ -103,7 +94,16 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-input_column, result_column = st.columns([2.45, 1.0], gap="large")
+show_result_layout = example_mode or (
+    "calculated_probability" in st.session_state
+    and "calculated_fingerprint" in st.session_state
+)
+
+if show_result_layout:
+    input_column, result_column = st.columns([2.45, 1.0], gap="large")
+else:
+    input_column = st.container()
+    result_column = None
 
 with input_column:
     with st.container(border=True):
@@ -260,9 +260,17 @@ if calculate:
             bundle=bundle,
         )
         st.session_state["calculated_fingerprint"] = fingerprint
+        st.rerun()
     except InputValidationError as error:
         calculation_error = str(error)
         st.session_state.pop("calculated_fingerprint", None)
+        st.session_state.pop("calculated_probability", None)
+
+stored_fingerprint = st.session_state.get("calculated_fingerprint")
+if not example_mode and not calculate and stored_fingerprint is not None and stored_fingerprint != fingerprint:
+    st.session_state.pop("calculated_fingerprint", None)
+    st.session_state.pop("calculated_probability", None)
+    st.rerun()
 
 if example_mode:
     probability = float(example["expected_probability"])
@@ -271,7 +279,9 @@ elif st.session_state.get("calculated_fingerprint") == fingerprint:
 else:
     probability = None
 
-with result_column:
-    if calculation_error:
-        st.error(calculation_error)
-    st.markdown(result_html(probability), unsafe_allow_html=True)
+if calculation_error:
+    st.error(calculation_error)
+
+if probability is not None and result_column is not None:
+    with result_column:
+        st.markdown(result_html(probability), unsafe_allow_html=True)
