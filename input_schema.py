@@ -36,30 +36,3 @@ LIFE_SATISFACTION = {
     5: "Completely satisfied",
 }
 LIVING_CHILDREN = {0: "0", 1: "1", 2: "2", 3: "3 or more"}
-
-
-GROUPS = {
-    "Depressive burden and physical health": [
-        "Baseline subthreshold CES-D burden",
-        "Mobility difficulty count",
-        "ADL difficulty count",
-        "IADL difficulty count",
-        "Pain",
-        "Self-rated health",
-    ],
-    "Sensory and cognitive function": [
-        "Self-rated distance vision",
-        "Self-rated near vision",
-        "Self-rated memory",
-        "Immediate word recall",
-        "Delayed word recall",
-        "Serial 7s score",
-    ],
-    "Sociodemographic and psychosocial factors": [
-        "Sex",
-        "Education level",
-        "Life satisfaction",
-        "Internet use",
-        "Number of living children",
-    ],
-}
